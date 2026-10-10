@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://gwpa20spi8ny"]
+
+[ext_resource type="Script" uid="uid://c3cd7xk6ssb1d" path="res://scenes/ui/LetterBox.gd" id="1_xwo2l"]
+
+[node name="LetterBox" type="Control" unique_id=1408900868]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_xwo2l")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=210919452]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.13725491, 0.14509805, 0.1882353, 1)
+
+[node name="Label" type="Label" parent="." unique_id=1596972042]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 42
+text = "A"
+horizontal_alignment = 1
+vertical_alignment = 1

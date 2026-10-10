@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://bov6n5xfxatra"]
+
+[ext_resource type="PackedScene" uid="uid://pgct7l5w5kug" path="res://scenes/ui/Board.tscn" id="1_klkup"]
+[ext_resource type="Script" uid="uid://bctgj7gdip7fx" path="res://scenes/game/Game.gd" id="1_m44fu"]
+
+[node name="Game" type="Control" unique_id=1388640675]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_m44fu")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1984525533]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07058824, 0.07058824, 0.07450981, 1)
+
+[node name="Board" parent="." unique_id=1505608681 instance=ExtResource("1_klkup")]
+layout_mode = 0
+offset_left = 144.0
+offset_top = 140.0
+offset_right = 576.0
+offset_bottom = 660.0

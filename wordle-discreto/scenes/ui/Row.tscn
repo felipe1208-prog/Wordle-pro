@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://chcr063chxr6p"]
+
+[ext_resource type="PackedScene" uid="uid://gwpa20spi8ny" path="res://scenes/ui/LetterBox.tscn" id="1_c5cal"]
+[ext_resource type="Script" uid="uid://dv1wjxaipv3wp" path="res://scenes/ui/Row.gd" id="1_yoxth"]
+
+[node name="Row" type="HBoxContainer" unique_id=1165973508]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("1_yoxth")
+
+[node name="LetterBox" parent="." unique_id=1408900868 instance=ExtResource("1_c5cal")]
+layout_mode = 2
+
+[node name="LetterBox2" parent="." unique_id=397424732 instance=ExtResource("1_c5cal")]
+layout_mode = 2
+
+[node name="LetterBox3" parent="." unique_id=1704143676 instance=ExtResource("1_c5cal")]
+layout_mode = 2
+
+[node name="LetterBox4" parent="." unique_id=973830303 instance=ExtResource("1_c5cal")]
+layout_mode = 2
+
+[node name="LetterBox5" parent="." unique_id=1169454410 instance=ExtResource("1_c5cal")]
+layout_mode = 2

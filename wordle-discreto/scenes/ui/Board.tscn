@@ -1,0 +1,29 @@
+[gd_scene format=3 uid="uid://pgct7l5w5kug"]
+
+[ext_resource type="Script" uid="uid://dn4h84as1otsg" path="res://scenes/ui/Board.gd" id="1_i7rwl"]
+[ext_resource type="PackedScene" uid="uid://chcr063chxr6p" path="res://scenes/ui/Row.tscn" id="1_xujgw"]
+
+[node name="Board" type="VBoxContainer" unique_id=1505608681]
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/separation = 8
+alignment = 1
+script = ExtResource("1_i7rwl")
+
+[node name="Row" parent="." unique_id=1165973508 instance=ExtResource("1_xujgw")]
+layout_mode = 2
+
+[node name="Row2" parent="." unique_id=1407387142 instance=ExtResource("1_xujgw")]
+layout_mode = 2
+
+[node name="Row3" parent="." unique_id=378358481 instance=ExtResource("1_xujgw")]
+layout_mode = 2
+
+[node name="Row4" parent="." unique_id=1366638635 instance=ExtResource("1_xujgw")]
+layout_mode = 2
+
+[node name="Row5" parent="." unique_id=911652733 instance=ExtResource("1_xujgw")]
+layout_mode = 2
+
+[node name="Row6" parent="." unique_id=796861877 instance=ExtResource("1_xujgw")]
+layout_mode = 2
