@@ -1,0 +1,12 @@
+# Godot 4+ cache y datos de importación
+.godot/
+
+# Archivos de exportación
+*.apk
+*.aab
+*.exe
+*.zip
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
