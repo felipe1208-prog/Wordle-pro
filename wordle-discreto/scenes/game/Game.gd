@@ -4,6 +4,7 @@ extends Control
 @onready var message_label: Label = $MessageLabel
 @onready var keyboard: VirtualKeyboard = $Keyboard
 
+var result_modal: ResultModal = null
 var secret_words: Array = []
 var valid_dictionary: Dictionary = {}
 
@@ -12,11 +13,54 @@ var current_guess: String = ""
 var current_row: int = 0
 var max_attempts: int = 6
 var game_over: bool = false
+var is_animating: bool = false
+
+# Elementos del Modo Tensión
+var tension_overlay: ColorRect = null
+var tension_tween: Tween = null
+var is_tension_active: bool = false
+var board_initial_position: Vector2 = Vector2.ZERO
 
 func _ready() -> void:
+	set_process(false)
+	if board:
+		board_initial_position = board.position
+	_setup_tension_overlay()
+	_init_result_modal()
 	load_all_words()
 	setup_keyboard()
 	start_new_game()
+
+func _init_result_modal() -> void:
+	# Buscar si ya está en la escena; si no, cargarlo automáticamente
+	if has_node("ResultModal"):
+		result_modal = $ResultModal as ResultModal
+	else:
+		var modal_scene = load("res://scenes/ui/ResultModal.tscn")
+		if modal_scene:
+			result_modal = modal_scene.instantiate() as ResultModal
+			add_child(result_modal)
+
+	if result_modal:
+		result_modal.z_index = 100
+		result_modal.play_again_requested.connect(_on_play_again)
+		result_modal.main_menu_requested.connect(_on_main_menu)
+
+func _process(_delta: float) -> void:
+	if is_tension_active and board:
+		board.position = board_initial_position + Vector2(
+			randf_range(-2.0, 2.0),
+			randf_range(-1.5, 1.5)
+		)
+
+func _setup_tension_overlay() -> void:
+	tension_overlay = ColorRect.new()
+	tension_overlay.name = "TensionOverlay"
+	tension_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tension_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tension_overlay.color = Color(0.85, 0.1, 0.1, 0.0)
+	add_child(tension_overlay)
+	move_child(tension_overlay, 1)
 
 func setup_keyboard() -> void:
 	if keyboard:
@@ -52,12 +96,16 @@ func load_json_array(path: String) -> Array:
 	return []
 
 func start_new_game() -> void:
+	if result_modal:
+		result_modal.hide_modal()
+	_stop_tension_mode()
 	board.reset_board()
 	if keyboard:
 		keyboard.reset_keyboard()
 	current_row = 0
 	current_guess = ""
 	game_over = false
+	is_animating = false
 	show_message("")
 	
 	randomize()
@@ -74,6 +122,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				start_new_game()
 			return
 
+		if is_animating:
+			return
+
 		if keycode >= KEY_A and keycode <= KEY_Z:
 			var letter = OS.get_keycode_string(keycode).to_upper()
 			add_letter(letter)
@@ -83,23 +134,25 @@ func _unhandled_input(event: InputEvent) -> void:
 			submit_guess()
 
 func add_letter(letter: String) -> void:
-	if game_over:
+	if game_over or is_animating:
 		return
 	if current_guess.length() < 5:
 		current_guess += letter
 		board.update_row_text(current_row, current_guess)
-		show_message("")
+		if not is_tension_active:
+			show_message("")
 
 func delete_letter() -> void:
-	if game_over:
+	if game_over or is_animating:
 		return
 	if current_guess.length() > 0:
 		current_guess = current_guess.substr(0, current_guess.length() - 1)
 		board.update_row_text(current_row, current_guess)
-		show_message("")
+		if not is_tension_active:
+			show_message("")
 
 func submit_guess() -> void:
-	if game_over:
+	if game_over or is_animating:
 		return
 
 	if current_guess.length() < 5:
@@ -110,32 +163,93 @@ func submit_guess() -> void:
 		show_message("Palabra no válida")
 		return
 
-	var result = evaluate_guess(current_guess, secret_word)
-	board.set_row_result(current_row, result)
+	is_animating = true
+	var guess_snapshot = current_guess
+	var row_snapshot = current_row
+	var result = evaluate_guess(guess_snapshot, secret_word)
 
-	# Actualizar los colores de las teclas del teclado virtual
-	if keyboard:
-		for i in range(5):
-			keyboard.update_key_status(current_guess[i], result[i])
+	await board.animate_row_reveal(row_snapshot, result, func(index: int, status: String):
+		if keyboard:
+			keyboard.update_key_status(guess_snapshot[index], status)
+	)
 
-	if current_guess == secret_word:
-		# Otorgar recompensa económica global mediante el Singleton PlayerData
-		PlayerData.add_reward_for_win(current_row + 1)
-		
-		show_message("¡Ganaste! Presiona 'R' para jugar de nuevo")
+	is_animating = false
+
+	# CASO VICTORIA
+	if guess_snapshot == secret_word:
+		_stop_tension_mode()
 		game_over = true
+		var prev_stars = PlayerData.get_stars_in_current_level()
+		var prev_level = PlayerData.get_level()
+
+		var coins_earned = 0
+		var stars_earned = 2 if (row_snapshot + 1) <= 2 else 1
+		match (row_snapshot + 1):
+			1: coins_earned = 100
+			2: coins_earned = 80
+			3: coins_earned = 60
+			4: coins_earned = 40
+			5: coins_earned = 20
+			6: coins_earned = 10
+
+		PlayerData.add_reward_for_win(row_snapshot + 1)
+
+		if result_modal:
+			result_modal.show_modal(true, secret_word, coins_earned, stars_earned, prev_stars, prev_level)
 		return
 
 	current_row += 1
 	current_guess = ""
 
-	if current_row >= max_attempts:
-		show_message("Era: " + secret_word + " | Presiona 'R' para reiniciar")
+	# MODO TENSIÓN / CASO DERROTA
+	if current_row == max_attempts - 1 and not game_over:
+		_trigger_tension_mode()
+	elif current_row >= max_attempts:
+		_stop_tension_mode()
 		game_over = true
+		var prev_stars = PlayerData.get_stars_in_current_level()
+		var prev_level = PlayerData.get_level()
+		PlayerData.register_loss()
+
+		if result_modal:
+			result_modal.show_modal(false, secret_word, 0, 0, prev_stars, prev_level)
+
+func _trigger_tension_mode() -> void:
+	is_tension_active = true
+	set_process(true)
+	show_message("⚠️ ¡ÚLTIMO INTENTO! ⚠️")
+
+	if tension_overlay:
+		if tension_tween and tension_tween.is_valid():
+			tension_tween.kill()
+		tension_tween = create_tween().set_loops()
+		tension_tween.tween_property(tension_overlay, "color:a", 0.16, 0.6).set_trans(Tween.TRANS_SINE)
+		tension_tween.tween_property(tension_overlay, "color:a", 0.03, 0.6).set_trans(Tween.TRANS_SINE)
+
+func _stop_tension_mode() -> void:
+	is_tension_active = false
+	set_process(false)
+	if tension_tween and tension_tween.is_valid():
+		tension_tween.kill()
+	if tension_overlay:
+		var fade_out = create_tween()
+		fade_out.tween_property(tension_overlay, "color:a", 0.0, 0.25)
+	if board:
+		board.position = board_initial_position
+
+func _on_play_again() -> void:
+	start_new_game()
+
+func _on_main_menu() -> void:
+	get_tree().change_scene_to_file("res://scenes/ui/MainMenu.tscn")
 
 func show_message(text: String) -> void:
 	if message_label:
 		message_label.text = text
+		if is_tension_active and text.contains("ÚLTIMO"):
+			message_label.add_theme_color_override("font_color", Color("ef4444"))
+		else:
+			message_label.add_theme_color_override("font_color", Color("ffffff"))
 
 func evaluate_guess(guess: String, target: String) -> Array:
 	var results = ["incorrect", "incorrect", "incorrect", "incorrect", "incorrect"]

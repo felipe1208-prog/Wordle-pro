@@ -1,113 +1,133 @@
-extends VBoxContainer
+extends Control
 class_name VirtualKeyboard
 
 signal letter_pressed(letter: String)
-signal enter_pressed()
-signal backspace_pressed()
+signal enter_pressed
+signal backspace_pressed
+
+# Paleta oficial Wordle (Modo Oscuro)
+const KEY_COLOR_DEFAULT: Color = Color("818384")   # Gris neutro de tecla
+const KEY_COLOR_CORRECT: Color = Color("538d4e")   # Verde oficial
+const KEY_COLOR_WRONG_POS: Color = Color("b59f3b") # Amarillo ocre oficial
+const KEY_COLOR_INCORRECT: Color = Color("3a3a3c") # Gris oscuro descartado
 
 var key_buttons: Dictionary = {}
+var key_statuses: Dictionary = {}
 
-# Distribución clásica QWERTY en español
-const ROW_1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"]
-const ROW_2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"]
-const ROW_3 = ["ENTER", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
-
-# Colores para las teclas
-const COLOR_DEFAULT = Color("4b5563")  # Gris neutro
-const COLOR_ABSENT  = Color("1f2937")  # Gris oscuro (descartada)
-const COLOR_PRESENT = Color("d97706")  # Amarillo (posición incorrecta)
-const COLOR_CORRECT = Color("15803d")  # Verde (acierto exacto)
+const ROWS_LAYOUT: Array = [
+	["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+	["A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ"],
+	["ENTER", "Z", "X", "C", "V", "B", "N", "M", "⌫"]
+]
 
 func _ready() -> void:
-	build_keyboard()
-
-func build_keyboard() -> void:
-	# Limpiar hijos previos si los hubiera
-	for child in get_children():
-		child.queue_free()
-	key_buttons.clear()
-
-	create_row(ROW_1)
-	create_row(ROW_2)
-	create_row(ROW_3)
-
-func create_row(keys: Array) -> void:
-	var h_box = HBoxContainer.new()
-	h_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	h_box.add_theme_constant_override("separation", 6)
-	add_child(h_box)
-
-	for key in keys:
-		var btn = Button.new()
-		btn.text = key
-		btn.focus_mode = Control.FOCUS_NONE # Evita bordes molestos al hacer clic
-		
-		# Tamaño de tecla
-		if key == "ENTER" or key == "⌫":
-			btn.custom_minimum_size = Vector2(85, 65)
-			btn.add_theme_font_size_override("font_size", 18)
-		else:
-			btn.custom_minimum_size = Vector2(58, 65)
-			btn.add_theme_font_size_override("font_size", 24)
-
-		# Color inicial neutro
-		set_button_color(btn, COLOR_DEFAULT)
-
-		# Conectar clic
-		btn.pressed.connect(_on_key_pressed.bind(key))
-		h_box.add_child(btn)
-
-		if key != "ENTER" and key != "⌫":
-			key_buttons[key] = btn
-
-func _on_key_pressed(key: String) -> void:
-	if key == "ENTER":
-		enter_pressed.emit()
-	elif key == "⌫":
-		backspace_pressed.emit()
+	if find_children("*", "Button", true).is_empty():
+		_build_keyboard_layout()
 	else:
-		letter_pressed.emit(key)
+		_collect_existing_buttons()
 
-# Actualiza el color de la tecla respetando la jerarquía de Wordle (Verde > Amarillo > Gris)
+	reset_keyboard()
+
+func _build_keyboard_layout() -> void:
+	var container = VBoxContainer.new()
+	container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	container.add_theme_constant_override("separation", 8)
+	container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	container.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(container)
+
+	for row in ROWS_LAYOUT:
+		var hbox = HBoxContainer.new()
+		hbox.alignment = BoxContainer.ALIGNMENT_CENTER
+		hbox.add_theme_constant_override("separation", 6)
+		hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+		for key_text in row:
+			var btn = Button.new()
+			btn.text = key_text
+			btn.name = "Key_" + key_text
+			btn.focus_mode = Control.FOCUS_NONE
+			btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+			if key_text == "ENTER" or key_text == "⌫":
+				btn.size_flags_stretch_ratio = 1.5
+				btn.add_theme_font_size_override("font_size", 14)
+			else:
+				btn.size_flags_stretch_ratio = 1.0
+				btn.add_theme_font_size_override("font_size", 20)
+
+			_set_key_style(btn, KEY_COLOR_DEFAULT)
+
+			if key_text == "ENTER":
+				btn.pressed.connect(func(): enter_pressed.emit())
+			elif key_text == "⌫":
+				btn.pressed.connect(func(): backspace_pressed.emit())
+			else:
+				btn.pressed.connect(func(): letter_pressed.emit(key_text))
+
+			key_buttons[key_text] = btn
+			hbox.add_child(btn)
+
+		container.add_child(hbox)
+
+func _collect_existing_buttons() -> void:
+	var buttons = find_children("*", "Button", true)
+	for btn in buttons:
+		var btn_text = (btn as Button).text.strip_edges().to_upper()
+		key_buttons[btn_text] = btn
+		if btn_text == "ENTER":
+			btn.pressed.connect(func(): enter_pressed.emit())
+		elif btn_text == "BACK" or btn_text == "BORRAR" or btn_text == "⌫":
+			btn.pressed.connect(func(): backspace_pressed.emit())
+		elif btn_text.length() == 1:
+			btn.pressed.connect(func(): letter_pressed.emit(btn_text))
+
 func update_key_status(letter: String, status: String) -> void:
-	letter = letter.to_upper()
-	if not key_buttons.has(letter):
+	var key = letter.to_upper()
+	if not key_buttons.has(key):
 		return
 
-	var btn: Button = key_buttons[letter]
-	var current_state = btn.get_meta("status", "none")
-
-	# Si ya estaba en verde, nunca baja de nivel
-	if current_state == "correct":
+	# Prioridad de colores oficial: Verde > Amarillo > Gris
+	var current_status = key_statuses.get(key, "")
+	if current_status == "correct":
 		return
-	# Si ya estaba en amarillo, solo sube a verde
-	if current_state == "wrong_position" and status != "correct":
+	if current_status == "wrong_position" and status != "correct":
 		return
 
-	btn.set_meta("status", status)
-
+	key_statuses[key] = status
+	var btn: Button = key_buttons[key]
 	match status:
 		"correct":
-			set_button_color(btn, COLOR_CORRECT)
+			_set_key_style(btn, KEY_COLOR_CORRECT)
 		"wrong_position":
-			set_button_color(btn, COLOR_PRESENT)
+			_set_key_style(btn, KEY_COLOR_WRONG_POS)
 		"incorrect":
-			set_button_color(btn, COLOR_ABSENT)
+			_set_key_style(btn, KEY_COLOR_INCORRECT)
 
-func set_button_color(btn: Button, color: Color) -> void:
+func reset_keyboard() -> void:
+	key_statuses.clear()
+	for key in key_buttons.keys():
+		var btn: Button = key_buttons[key]
+		_set_key_style(btn, KEY_COLOR_DEFAULT)
+
+func _set_key_style(btn: Button, color: Color) -> void:
 	var style = StyleBoxFlat.new()
 	style.bg_color = color
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
-	btn.add_theme_stylebox_override("normal", style)
-	btn.add_theme_stylebox_override("hover", style)
-	btn.add_theme_stylebox_override("pressed", style)
+	style.set_corner_radius_all(5)
 
-# Limpia los colores de todas las teclas para reiniciar partida
-func reset_keyboard() -> void:
-	for letter in key_buttons:
-		var btn: Button = key_buttons[letter]
-		btn.set_meta("status", "none")
-		set_button_color(btn, COLOR_DEFAULT)
+	var hover_style = StyleBoxFlat.new()
+	hover_style.bg_color = color.lightened(0.12)
+	hover_style.set_corner_radius_all(5)
+
+	var pressed_style = StyleBoxFlat.new()
+	pressed_style.bg_color = color.darkened(0.15)
+	pressed_style.set_corner_radius_all(5)
+
+	btn.add_theme_stylebox_override("normal", style)
+	btn.add_theme_stylebox_override("hover", hover_style)
+	btn.add_theme_stylebox_override("pressed", pressed_style)
+	btn.add_theme_color_override("font_color", Color.WHITE)
+	btn.add_theme_color_override("font_hover_color", Color.WHITE)
+	btn.add_theme_color_override("font_pressed_color", Color.WHITE)
