@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://ndb0q0q6oj77"]
+
+[ext_resource type="Script" uid="uid://36lg6a6duy22" path="res://scenes/ui/MainMenu.gd" id="1_vjtqc"]
+
+[node name="MainMenu" type="Control" unique_id=798629122]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 720.0
+offset_bottom = 1280.0
+script = ExtResource("1_vjtqc")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1667054390]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.06666667, 0.09411765, 0.15294118, 1)
+
+[node name="MenuContainer" type="VBoxContainer" parent="ColorRect" unique_id=2086617657]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 500.0
+offset_right = 620.0
+offset_bottom = 750.0
+theme_override_constants/separation = 25
+
+[node name="PlayButton" type="Button" parent="ColorRect/MenuContainer" unique_id=1652323681]
+layout_mode = 2
+text = "JUGAR"
+
+[node name="StatsButton" type="Button" parent="ColorRect/MenuContainer" unique_id=498874021]
+layout_mode = 2
+text = "ESTADISTICAS"
+
+[node name="ExitButton" type="Button" parent="ColorRect/MenuContainer" unique_id=1457213460]
+layout_mode = 2
+text = "SALIR"
+
+[node name="Label" type="Label" parent="." unique_id=1741798812]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -74.0
+offset_top = 150.0
+offset_right = 142.0
+offset_bottom = 173.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 42
+text = "WORDLE DISCRETO"
+horizontal_alignment = 1
