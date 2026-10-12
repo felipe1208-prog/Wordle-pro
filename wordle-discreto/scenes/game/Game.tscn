@@ -2,6 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://pgct7l5w5kug" path="res://scenes/ui/Board.tscn" id="1_klkup"]
 [ext_resource type="Script" uid="uid://bctgj7gdip7fx" path="res://scenes/game/Game.gd" id="1_m44fu"]
+[ext_resource type="PackedScene" uid="uid://b3mnoxnitye50" path="res://scenes/ui/Keyboard.tscn" id="3_vrspl"]
 
 [node name="Game" type="Control" unique_id=1388640675]
 layout_mode = 3
@@ -36,3 +37,11 @@ offset_bottom = 125.0
 theme_override_font_sizes/font_size = 26
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Keyboard" parent="." unique_id=611323173 instance=ExtResource("3_vrspl")]
+layout_mode = 0
+anchors_preset = 0
+offset_left = 10.0
+offset_top = 780.0
+offset_right = -10.0
+offset_bottom = 780.32
