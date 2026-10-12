@@ -1,0 +1,81 @@
+[gd_scene format=3 uid="uid://dpfimthpmajgr"]
+
+[ext_resource type="Script" uid="uid://be2b85a0187nu" path="res://scenes/ui/StatsMenu.gd" id="1_gq0qo"]
+
+[node name="StatsMenu" type="Control" unique_id=529208425]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gq0qo")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=886254485]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.06666667, 0.09411765, 0.15294118, 1)
+
+[node name="TitleLabel" type="Label" parent="." unique_id=49897836]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -119.5
+offset_top = 120.0
+offset_right = 119.5
+offset_bottom = 170.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 36
+text = "ESTADÍSTICAS"
+horizontal_alignment = 1
+
+[node name="StatsContainer" type="VBoxContainer" parent="." unique_id=336964644]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 320.0
+offset_right = 660.0
+offset_bottom = 620.0
+theme_override_constants/separation = 20
+
+[node name="PlayedLabel" type="Label" parent="StatsContainer" unique_id=276125650]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Partidas Jugadas: 0"
+horizontal_alignment = 1
+
+[node name="WonLabel" type="Label" parent="StatsContainer" unique_id=1087534952]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Victorias: 0"
+horizontal_alignment = 1
+
+[node name="WinRateLabel" type="Label" parent="StatsContainer" unique_id=1383833578]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "% de victorias: 0%"
+horizontal_alignment = 1
+
+[node name="CurrentStreakLabel" type="Label" parent="StatsContainer" unique_id=1611728063]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Racha Actual: 0"
+horizontal_alignment = 1
+
+[node name="MaxStreakLabel" type="Label" parent="StatsContainer" unique_id=524866350]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Mejor Racha: 0"
+horizontal_alignment = 1
+
+[node name="BackButton" type="Button" parent="." unique_id=774923838]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 750.0
+offset_right = 560.0
+offset_bottom = 810.0
+text = "VOLVER AL MENÚ"

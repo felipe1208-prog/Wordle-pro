@@ -42,6 +42,8 @@ vertical_alignment = 1
 [node name="Keyboard" parent="." unique_id=611323173 instance=ExtResource("3_vrspl")]
 layout_mode = 0
 anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
 offset_left = 10.0
 offset_top = 780.0
 offset_right = -10.0

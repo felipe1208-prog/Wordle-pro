@@ -5,7 +5,6 @@ extends Control
 @onready var exit_button: Button = $MenuContainer/ExitButton if has_node("MenuContainer/ExitButton") else null
 
 func _ready() -> void:
-	# Si las rutas de los nodos no coincidieran exactamente, intentamos buscarlos por tipo
 	if play_button == null:
 		var buttons = find_children("*", "Button", true)
 		if buttons.size() >= 1: play_button = buttons[0]
@@ -23,7 +22,7 @@ func _on_play_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/game/Game.tscn")
 
 func _on_stats_pressed() -> void:
-	print("Pantalla de estadísticas en desarrollo...")
+	get_tree().change_scene_to_file("res://scenes/ui/StatsMenu.tscn")
 
 func _on_exit_pressed() -> void:
 	get_tree().quit()
