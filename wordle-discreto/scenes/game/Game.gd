@@ -119,6 +119,9 @@ func submit_guess() -> void:
 			keyboard.update_key_status(current_guess[i], result[i])
 
 	if current_guess == secret_word:
+		# Otorgar recompensa económica global mediante el Singleton PlayerData
+		PlayerData.add_reward_for_win(current_row + 1)
+		
 		show_message("¡Ganaste! Presiona 'R' para jugar de nuevo")
 		game_over = true
 		return

@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://v8pgcv21bgf6"]
+
+[ext_resource type="Script" uid="uid://jxmtm7yq0ope" path="res://scenes/ui/EconomyUI.gd" id="1_bkbq6"]
+
+[node name="EconomyUI" type="HBoxContainer" unique_id=549974551]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_bkbq6")
+
+[node name="CoinsLabel" type="Label" parent="." unique_id=854209647]
+layout_mode = 2
+
+[node name="StarsLabel" type="Label" parent="." unique_id=333338048]
+layout_mode = 2

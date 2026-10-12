@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://pgct7l5w5kug" path="res://scenes/ui/Board.tscn" id="1_klkup"]
 [ext_resource type="Script" uid="uid://bctgj7gdip7fx" path="res://scenes/game/Game.gd" id="1_m44fu"]
 [ext_resource type="PackedScene" uid="uid://b3mnoxnitye50" path="res://scenes/ui/Keyboard.tscn" id="3_vrspl"]
+[ext_resource type="PackedScene" uid="uid://v8pgcv21bgf6" path="res://scenes/ui/EconomyUI.tscn" id="4_7qcb4"]
 
 [node name="Game" type="Control" unique_id=1388640675]
 layout_mode = 3
@@ -45,3 +46,10 @@ offset_left = 10.0
 offset_top = 780.0
 offset_right = -10.0
 offset_bottom = 780.32
+
+[node name="EconomyUI" parent="." unique_id=549974551 instance=ExtResource("4_7qcb4")]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 30.0
+offset_right = 60.0
+offset_bottom = 70.0
