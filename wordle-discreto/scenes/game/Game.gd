@@ -7,6 +7,11 @@ extends Control
 # Referencias a los botones de comodines
 @onready var reveal_letter_button: Button = $HintsContainer/RevealLetterButton if has_node("HintsContainer/RevealLetterButton") else null
 @onready var remove_keys_button: Button = $HintsContainer/RemoveKeysButton if has_node("HintsContainer/RemoveKeysButton") else null
+@onready var hints_container: Node = $HintsContainer if has_node("HintsContainer") else null
+
+var discrete_questions: Array = []
+var quiz_modal: DiscreteQuizModal = null
+var discrete_quiz_button: Button = null
 
 var result_modal: ResultModal = null
 var secret_words: Array = []
@@ -31,6 +36,11 @@ func _ready() -> void:
 		board_initial_position = board.position
 	_setup_tension_overlay()
 	_init_result_modal()
+	
+	# Inicialización del módulo de preguntas discretas (Fase 10)
+	_init_quiz_modal()
+	load_discrete_questions_catalog()
+	_setup_discrete_quiz_button()
 	
 	# Conectar señales globales
 	if PlayerData.has_signal("theme_updated"):
@@ -76,12 +86,29 @@ func _setup_hint_buttons() -> void:
 
 	_update_hint_buttons_state()
 
+# --- CREACIÓN DEL BOTÓN ACADÉMICO VISUAL (SUBFASE 10.4) ---
+func _setup_discrete_quiz_button() -> void:
+	if hints_container and not has_node("HintsContainer/DiscreteQuizButton"):
+		discrete_quiz_button = Button.new()
+		discrete_quiz_button.name = "DiscreteQuizButton"
+		discrete_quiz_button.text = "📐 Desafío Discreto"
+		discrete_quiz_button.custom_minimum_size = Vector2(110, 45)
+		discrete_quiz_button.add_theme_font_size_override("font_size", 12)
+		discrete_quiz_button.pressed.connect(trigger_random_discrete_quiz)
+		hints_container.add_child(discrete_quiz_button)
+	elif has_node("HintsContainer/DiscreteQuizButton"):
+		discrete_quiz_button = $HintsContainer/DiscreteQuizButton as Button
+		if not discrete_quiz_button.pressed.is_connected(trigger_random_discrete_quiz):
+			discrete_quiz_button.pressed.connect(trigger_random_discrete_quiz)
+
 func _update_hint_buttons_state() -> void:
 	var current_coins = PlayerData.coins
 	if reveal_letter_button:
 		reveal_letter_button.disabled = game_over or is_animating or (current_coins < PlayerData.HINT_REVEAL_LETTER_COST)
 	if remove_keys_button:
 		remove_keys_button.disabled = game_over or is_animating or (current_coins < PlayerData.HINT_REMOVE_KEYS_COST)
+	if discrete_quiz_button:
+		discrete_quiz_button.disabled = game_over or is_animating
 
 func _on_economy_updated(_new_coins: int, _new_stars: int) -> void:
 	_update_hint_buttons_state()
@@ -120,12 +147,11 @@ func _on_reveal_letter_pressed() -> void:
 		show_message("💡 Letra revelada: '" + revealed_char + "'")
 		_update_hint_buttons_state()
 
-# --- LÓGICA DE COMODÍN 2: ELIMINAR TECLAS ERRÓNEAS (SOLUCIÓN DIRECTA E INMEDIATA) ---
+# --- LÓGICA DE COMODÍN 2: ELIMINAR TECLAS ERRÓNEAS ---
 func _on_remove_keys_pressed() -> void:
 	if game_over or is_animating or keyboard == null:
 		return
 
-	# Lista de letras candidatas que NO forman parte de la palabra secreta
 	var alphabet: String = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
 	var discard_candidates: Array = []
 
@@ -142,7 +168,6 @@ func _on_remove_keys_pressed() -> void:
 		discard_candidates.shuffle()
 		var char_to_discard: String = discard_candidates[0]
 		
-		# Forzamos directamente la actualización del estado de la tecla en el teclado virtual
 		keyboard.update_key_status(char_to_discard, "incorrect")
 		show_message("❌ Tecla descartada: '" + char_to_discard + "'")
 		_update_hint_buttons_state()
@@ -235,6 +260,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 
 		if is_animating:
+			return
+
+		if event.unicode == ord("$"):
+			trigger_random_discrete_quiz()
 			return
 
 		if keycode >= KEY_A and keycode <= KEY_Z:
@@ -385,3 +414,48 @@ func evaluate_guess(guess: String, target: String) -> Array:
 				target_pool[char] -= 1
 
 	return results
+
+# --- LÓGICA DE PREGUNTAS DISCRETAS (FASE 10) ---
+func _init_quiz_modal() -> void:
+	if has_node("DiscreteQuizModal"):
+		quiz_modal = $DiscreteQuizModal as DiscreteQuizModal
+	else:
+		var quiz_scene = load("res://scenes/ui/DiscreteQuizModal.tscn")
+		if quiz_scene:
+			quiz_modal = quiz_scene.instantiate() as DiscreteQuizModal
+			add_child(quiz_modal)
+
+	if quiz_modal:
+		quiz_modal.z_index = 200
+		quiz_modal.quiz_completed.connect(_on_quiz_completed)
+
+func load_discrete_questions_catalog() -> void:
+	discrete_questions = load_json_array("res://data/preguntas_discretas.json")
+	if discrete_questions.is_empty():
+		print("Advertencia: No se pudieron cargar las preguntas discretas.")
+
+func trigger_random_discrete_quiz() -> void:
+	if discrete_questions.is_empty():
+		load_discrete_questions_catalog()
+	
+	if not discrete_questions.is_empty() and quiz_modal:
+		discrete_questions.shuffle()
+		var random_q = discrete_questions[0]
+		quiz_modal.show_question(random_q)
+
+func _on_quiz_completed(success: bool, reward_coins: int) -> void:
+	if success:
+		if PlayerData.has_method("add_coins"):
+			PlayerData.add_coins(reward_coins)
+		elif PlayerData.has_method("add_currency"):
+			PlayerData.add_currency(reward_coins)
+		else:
+			PlayerData.coins += reward_coins
+			if PlayerData.has_method("save_player_data"):
+				PlayerData.save_player_data()
+			if PlayerData.has_signal("economy_updated"):
+				PlayerData.economy_updated.emit(PlayerData.coins, PlayerData.stars)
+
+		show_message("¡Desafío superado! +" + str(reward_coins) + " 🪙")
+	else:
+		show_message("Respuesta incorrecta. ¡Sigue intentando!")

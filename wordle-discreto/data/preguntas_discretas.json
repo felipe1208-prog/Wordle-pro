@@ -1,0 +1,197 @@
+[
+{
+"id": 1,
+"categoria": "Teoría de Grafos",
+"enunciado": "¿Cómo se le denomina a un grafo que contiene un camino que visita cada arista exactamente una vez y regresa al vértice inicial?",
+"opciones": [
+"Camino Simple",
+"Ciclo euleriano",
+"Árbol de expansión",
+"Grafo bipartito"
+],
+"respuesta_correcta": "Ciclo euleriano",
+"explicacion": "Un ciclo euleriano recorre cada arista del grafo exactamente una vez y finaliza en el vértice de origen."
+},
+{
+"id": 2,
+"categoria": "Teoría de Grafos",
+"enunciado": "Un ciclo hamiltoniano en un grafo es aquel que pasa por:",
+"opciones": [
+"Todas las aristas exactamente una vez",
+"Todos los vértices exactamente una vez y regresa al origen",
+"Solo los vértices de grado par",
+"Todas las aristas con pesos positivos"
+],
+"respuesta_correcta": "Todos los vértices exactamente una vez y regresa al origen",
+"explicacion": "A diferencia del euleriano (que enfoca sus aristas), el ciclo hamiltoniano visita cada vértice una sola vez."
+},
+{
+"id": 3,
+"categoria": "Teoría de Grafos",
+"enunciado": "Según el Teorema del Apretón de Manos, la suma de los grados de todos los vértices de un grafo no dirigido es igual a:",
+"opciones": [
+"El número total de vértices",
+"El doble del número de aristas",
+"El cuadrado del número de vértices",
+"La mitad del número de aristas"
+],
+"respuesta_correcta": "El doble del número de aristas",
+"explicacion": "Cada arista contribuye exactamente con 2 a la suma total de los grados de los vértices conectados."
+},
+{
+"id": 4,
+"categoria": "Teoría de Grafos",
+"enunciado": "¿Cuál es la característica principal de un grafo conexo bipartito $K_{m,n}$?",
+"opciones": [
+"Sus vértices se dividen en dos conjuntos disjuntos y las aristas solo unen vértices de distintos conjuntos",
+"Todos los vértices tienen el mismo grado",
+"No contiene ningún ciclo simple",
+"Tiene un número impar de vértices en cada componente"
+],
+"respuesta_correcta": "Sus vértices se dividen en dos conjuntos disjuntos y las aristas solo unen vértices de distintos conjuntos",
+"explicacion": "Un grafo bipartito se puede particionar en dos conjuntos $V_1$ y $V_2$ tal que no existen aristas dentro del mismo conjunto."
+},
+{
+"id": 5,
+"categoria": "Relaciones y Funciones",
+"enunciado": "Una relación R sobre un conjunto A es ____________ si para todo a en A, se cumple que (a, a) está en R.",
+"opciones": [
+"Simétrica",
+"Transitiva",
+"Reflexiva",
+"Antisimétrica"
+],
+"respuesta_correcta": "Reflexiva",
+"explicacion": "La propiedad reflexiva exige que cada elemento del conjunto esté relacionado consigo mismo."
+},
+{
+"id": 6,
+"categoria": "Relaciones y Funciones",
+"enunciado": "Para que una relación binaria R sea una Relación de Equivalencia, debe cumplir las propiedades:",
+"opciones": [
+"Reflexiva, Antisimétrica y Transitiva",
+"Irreflexiva, Simétrica y Transitiva",
+"Reflexiva, Simétrica y Transitiva",
+"Asimétrica, Transitiva y Completa"
+],
+"respuesta_correcta": "Reflexiva, Simétrica y Transitiva",
+"explicacion": "Toda relación de equivalencia divide a su conjunto base en clases de equivalencia mediante estas tres propiedades."
+},
+{
+"id": 7,
+"categoria": "Relaciones y Funciones",
+"enunciado": "Una función $f: A \to B$ es biyectiva si cumple simultáneamente con ser:",
+"opciones": [
+"Inyectiva y Suprayectiva",
+"Inyectiva y Reflexiva",
+"Suprayectiva y Transitiva",
+"Simétrica y Biyectiva"
+],
+"respuesta_correcta": "Inyectiva y Suprayectiva",
+"explicacion": "Una función es biyectiva cuando es uno a uno (inyectiva) y cubre todo el conjunto de llegada (suprayectiva)."
+},
+{
+"id": 8,
+"categoria": "Relaciones y Funciones",
+"enunciado": "Si una relación es Reflexiva, Antisimétrica y Transitiva, se denomina:",
+"opciones": [
+"Relación de Equivalencia",
+"Orden Parcial",
+"Grafo Dirigido",
+"Función Inversa"
+],
+"respuesta_correcta": "Orden Parcial",
+"explicacion": "Un conjunto junto con una relación con estas tres propiedades constituye un Conjunto Parcialmente Ordenado (Poset)."
+},
+{
+"id": 9,
+"categoria": "Combinatoria",
+"enunciado": "¿Cuántas maneras diferentes hay de ordenar 5 libros en una repisa lineal?",
+"opciones": [
+"25",
+"120",
+"60",
+"10"
+],
+"respuesta_correcta": "120",
+"explicacion": "Corresponde a una permutación simple de 5 elementos: $5! = 5 \times 4 \times 3 \times 2 \times 1 = 120$."
+},
+{
+"id": 10,
+"categoria": "Combinatoria",
+"enunciado": "¿De cuántas formas se pueden seleccionar un comité de 3 personas de un grupo de 6 candidatos sin importar el orden?",
+"opciones": [
+"120",
+"20",
+"18",
+"36"
+],
+"respuesta_correcta": "20",
+"explicacion": "Se calcula con combinaciones: $C(6,3) = \frac{6!}{3!(6-3)!} = \frac{120}{6} = 20$."
+},
+{
+"id": 11,
+"categoria": "Combinatoria",
+"enunciado": "El Principio del Palomar (o de Dirichlet) establece que si $n$ palomas se colocan en $m$ nidos con $n > m$, entonces:",
+"opciones": [
+"Al menos un nido contiene 0 palomas",
+"Todos los nidos contienen al menos una paloma",
+"Al menos un nido contiene más de una paloma",
+"Cada nido contiene exactamente el mismo número de palomas"
+],
+"respuesta_correcta": "Al menos un nido contiene más de una paloma",
+"explicacion": "Al haber más elementos que recipientes, por contradicción se garantiza que al menos un recipiente tiene dos o más elementos."
+},
+{
+"id": 12,
+"categoria": "Árboles",
+"enunciado": "¿Cuál es el número de aristas en un árbol no dirigido conexo que tiene $N$ vértices?",
+"opciones": [
+"$N$",
+"$N - 1$",
+"$N + 1$",
+"$2N$"
+],
+"respuesta_correcta": "$N - 1$",
+"explicacion": "Cualquier árbol libre conexo de $N$ vértices posee exactamente $N - 1$ aristas."
+},
+{
+"id": 13,
+"categoria": "Árboles",
+"enunciado": "En un Árbol Binario Lleno o Estricto, todo nodo interno tiene exactamente:",
+"opciones": [
+"1 hijo",
+"2 hijos",
+"0 o 2 hijos",
+"Hasta 3 hijos"
+],
+"respuesta_correcta": "2 hijos",
+"explicacion": "En un árbol binario estricto, cada nodo no hoja tiene exactamente 2 descendientes directos."
+},
+{
+"id": 14,
+"categoria": "Lógica Proposicional",
+"enunciado": "¿Cuál es la tabla de verdad de la condicional $P \to Q$?",
+"opciones": [
+"Solo es Falsa cuando P es Verdadera y Q es Falsa",
+"Solo es Verdadera cuando ambas proposiciones son Verdaderas",
+"Es Falsa siempre que Q sea Falsa",
+"Es Verdadera solo cuando P y Q tienen valores opuestos"
+],
+"respuesta_correcta": "Solo es Falsa cuando P es Verdadera y Q es Falsa",
+"explicacion": "La implicación $P \to Q$ únicamente se rompe o resulta falsa cuando la premisa es verdadera y la conclusión es falsa."
+},
+{
+"id": 15,
+"categoria": "Lógica Proposicional",
+"enunciado": "Una proposición compuestas que siempre es verdadera sin importar los valores de sus componentes se denomina:",
+"opciones": [
+"Contradicción",
+"Contingencia",
+"Tautología",
+"Equivalencia"
+],
+"respuesta_correcta": "Tautología",
+"explicacion": "Una tautología evaluación lógicamente positiva (Verdadera) en todas sus interpretaciones."
+}
+]
