@@ -8,6 +8,10 @@ signal theme_updated(theme_id: String)
 const SAVE_PATH: String = "user://save_data.json"
 const STARS_PER_LEVEL: int = 5
 
+# Costos de los Comodines / Pistas
+const HINT_REVEAL_LETTER_COST: int = 50
+const HINT_REMOVE_KEYS_COST: int = 30
+
 # Variables de economía y progresión
 var coins: int = 0
 var stars: int = 0 # Estrellas totales acumuladas (experiencia)
@@ -22,7 +26,7 @@ var max_streak: int = 0
 var unlocked_themes: Array = ["classic"]
 var current_theme: String = "classic"
 
-# Catálogo de temas con requisitos de nivel y monedas (Corregido: tile_wrong_pos en amarillo ocre)
+# Catálogo de temas con requisitos de nivel y monedas
 const THEMES_CATALOG: Dictionary = {
 	"classic": {
 		"name": "Clásico Wordle",
@@ -120,6 +124,27 @@ func register_loss() -> void:
 
 	stats_updated.emit()
 	save_data()
+
+# --- COMODINES / PISTAS ---
+func use_hint_reveal_letter() -> bool:
+	if coins >= HINT_REVEAL_LETTER_COST:
+		coins -= HINT_REVEAL_LETTER_COST
+		print("Comodín utilizado: Revelar Letra (-", HINT_REVEAL_LETTER_COST, " monedas)")
+		economy_updated.emit(coins, stars)
+		save_data()
+		return true
+	print("Monedas insuficientes para revelar letra. Requiere: ", HINT_REVEAL_LETTER_COST)
+	return false
+
+func use_hint_remove_keys() -> bool:
+	if coins >= HINT_REMOVE_KEYS_COST:
+		coins -= HINT_REMOVE_KEYS_COST
+		print("Comodín utilizado: Eliminar Teclas Erróneas (-", HINT_REMOVE_KEYS_COST, " monedas)")
+		economy_updated.emit(coins, stars)
+		save_data()
+		return true
+	print("Monedas insuficientes para eliminar teclas. Requiere: ", HINT_REMOVE_KEYS_COST)
+	return false
 
 # --- TIENDA Y PERSONALIZACIÓN ---
 func buy_theme(theme_id: String) -> bool:

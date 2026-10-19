@@ -4,6 +4,10 @@ extends Control
 @onready var message_label: Label = $MessageLabel
 @onready var keyboard: VirtualKeyboard = $Keyboard
 
+# Referencias a los botones de comodines
+@onready var reveal_letter_button: Button = $HintsContainer/RevealLetterButton if has_node("HintsContainer/RevealLetterButton") else null
+@onready var remove_keys_button: Button = $HintsContainer/RemoveKeysButton if has_node("HintsContainer/RemoveKeysButton") else null
+
 var result_modal: ResultModal = null
 var secret_words: Array = []
 var valid_dictionary: Dictionary = {}
@@ -28,10 +32,15 @@ func _ready() -> void:
 	_setup_tension_overlay()
 	_init_result_modal()
 	
-	# Conectar señal de temas para cambio dinámico de fondo
+	# Conectar señales globales
 	if PlayerData.has_signal("theme_updated"):
 		PlayerData.theme_updated.connect(_on_theme_updated)
+	if PlayerData.has_signal("economy_updated"):
+		PlayerData.economy_updated.connect(_on_economy_updated)
 	_apply_current_theme()
+
+	# Conectar botones de comodines
+	_setup_hint_buttons()
 
 	load_all_words()
 	setup_keyboard()
@@ -50,6 +59,93 @@ func _init_result_modal() -> void:
 		result_modal.z_index = 100
 		result_modal.play_again_requested.connect(_on_play_again)
 		result_modal.main_menu_requested.connect(_on_main_menu)
+
+func _setup_hint_buttons() -> void:
+	if reveal_letter_button == null or remove_keys_button == null:
+		var buttons = find_children("*", "Button", true)
+		for btn in buttons:
+			if "Reveal" in btn.name or "revelar" in btn.text.to_lower():
+				reveal_letter_button = btn
+			elif "Remove" in btn.name or "descartar" in btn.text.to_lower():
+				remove_keys_button = btn
+
+	if reveal_letter_button and not reveal_letter_button.pressed.is_connected(_on_reveal_letter_pressed):
+		reveal_letter_button.pressed.connect(_on_reveal_letter_pressed)
+	if remove_keys_button and not remove_keys_button.pressed.is_connected(_on_remove_keys_pressed):
+		remove_keys_button.pressed.connect(_on_remove_keys_pressed)
+
+	_update_hint_buttons_state()
+
+func _update_hint_buttons_state() -> void:
+	var current_coins = PlayerData.coins
+	if reveal_letter_button:
+		reveal_letter_button.disabled = game_over or is_animating or (current_coins < PlayerData.HINT_REVEAL_LETTER_COST)
+	if remove_keys_button:
+		remove_keys_button.disabled = game_over or is_animating or (current_coins < PlayerData.HINT_REMOVE_KEYS_COST)
+
+func _on_economy_updated(_new_coins: int, _new_stars: int) -> void:
+	_update_hint_buttons_state()
+
+# --- LÓGICA DE COMODÍN 1: REVELAR LETRA ---
+func _on_reveal_letter_pressed() -> void:
+	if game_over or is_animating:
+		return
+
+	var unrevealed_indices: Array = []
+	for i in range(5):
+		var current_char = current_guess[i] if i < current_guess.length() else ""
+		if current_char != secret_word[i]:
+			unrevealed_indices.append(i)
+
+	if unrevealed_indices.is_empty():
+		show_message("Ya tienes todas las letras correctas en fila")
+		return
+
+	if PlayerData.use_hint_reveal_letter():
+		unrevealed_indices.shuffle()
+		var target_idx: int = unrevealed_indices[0]
+		var revealed_char: String = secret_word[target_idx]
+
+		var new_guess_arr: Array = []
+		for i in range(5):
+			if i == target_idx:
+				new_guess_arr.append(revealed_char)
+			elif i < current_guess.length():
+				new_guess_arr.append(current_guess[i])
+			else:
+				new_guess_arr.append(" ")
+
+		current_guess = "".join(new_guess_arr).strip_edges()
+		board.update_row_text(current_row, current_guess)
+		show_message("💡 Letra revelada: '" + revealed_char + "'")
+		_update_hint_buttons_state()
+
+# --- LÓGICA DE COMODÍN 2: ELIMINAR TECLAS ERRÓNEAS (SOLUCIÓN DIRECTA E INMEDIATA) ---
+func _on_remove_keys_pressed() -> void:
+	if game_over or is_animating or keyboard == null:
+		return
+
+	# Lista de letras candidatas que NO forman parte de la palabra secreta
+	var alphabet: String = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"
+	var discard_candidates: Array = []
+
+	for i in range(alphabet.length()):
+		var letter = alphabet[i]
+		if not secret_word.contains(letter):
+			discard_candidates.append(letter)
+
+	if discard_candidates.is_empty():
+		show_message("No hay más letras erróneas por descartar")
+		return
+
+	if PlayerData.use_hint_remove_keys():
+		discard_candidates.shuffle()
+		var char_to_discard: String = discard_candidates[0]
+		
+		# Forzamos directamente la actualización del estado de la tecla en el teclado virtual
+		keyboard.update_key_status(char_to_discard, "incorrect")
+		show_message("❌ Tecla descartada: '" + char_to_discard + "'")
+		_update_hint_buttons_state()
 
 func _process(_delta: float) -> void:
 	if is_tension_active and board:
@@ -122,6 +218,7 @@ func start_new_game() -> void:
 	game_over = false
 	is_animating = false
 	show_message("")
+	_update_hint_buttons_state()
 	
 	randomize()
 	secret_word = secret_words.pick_random().to_upper()
@@ -179,6 +276,7 @@ func submit_guess() -> void:
 		return
 
 	is_animating = true
+	_update_hint_buttons_state()
 	var guess_snapshot = current_guess
 	var row_snapshot = current_row
 	var result = evaluate_guess(guess_snapshot, secret_word)
@@ -190,10 +288,10 @@ func submit_guess() -> void:
 
 	is_animating = false
 
-	# CASO VICTORIA
 	if guess_snapshot == secret_word:
 		_stop_tension_mode()
 		game_over = true
+		_update_hint_buttons_state()
 		var prev_stars = PlayerData.get_stars_in_current_level()
 		var prev_level = PlayerData.get_level()
 
@@ -215,13 +313,14 @@ func submit_guess() -> void:
 
 	current_row += 1
 	current_guess = ""
+	_update_hint_buttons_state()
 
-	# MODO TENSIÓN / CASO DERROTA
 	if current_row == max_attempts - 1 and not game_over:
 		_trigger_tension_mode()
 	elif current_row >= max_attempts:
 		_stop_tension_mode()
 		game_over = true
+		_update_hint_buttons_state()
 		var prev_stars = PlayerData.get_stars_in_current_level()
 		var prev_level = PlayerData.get_level()
 		PlayerData.register_loss()
