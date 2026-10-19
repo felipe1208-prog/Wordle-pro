@@ -27,12 +27,17 @@ func _ready() -> void:
 		board_initial_position = board.position
 	_setup_tension_overlay()
 	_init_result_modal()
+	
+	# Conectar señal de temas para cambio dinámico de fondo
+	if PlayerData.has_signal("theme_updated"):
+		PlayerData.theme_updated.connect(_on_theme_updated)
+	_apply_current_theme()
+
 	load_all_words()
 	setup_keyboard()
 	start_new_game()
 
 func _init_result_modal() -> void:
-	# Buscar si ya está en la escena; si no, cargarlo automáticamente
 	if has_node("ResultModal"):
 		result_modal = $ResultModal as ResultModal
 	else:
@@ -61,6 +66,16 @@ func _setup_tension_overlay() -> void:
 	tension_overlay.color = Color(0.85, 0.1, 0.1, 0.0)
 	add_child(tension_overlay)
 	move_child(tension_overlay, 1)
+
+func _on_theme_updated(_theme_id: String) -> void:
+	_apply_current_theme()
+
+func _apply_current_theme() -> void:
+	var theme_data = PlayerData.THEMES_CATALOG.get(PlayerData.current_theme, PlayerData.THEMES_CATALOG["classic"])
+	for child in get_children():
+		if child is ColorRect and child.name != "TensionOverlay":
+			child.color = Color(theme_data["bg_color"])
+			break
 
 func setup_keyboard() -> void:
 	if keyboard:

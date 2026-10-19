@@ -22,7 +22,7 @@ var max_streak: int = 0
 var unlocked_themes: Array = ["classic"]
 var current_theme: String = "classic"
 
-# Catálogo de temas con requisitos de nivel y monedas
+# Catálogo de temas con requisitos de nivel y monedas (Corregido: tile_wrong_pos en amarillo ocre)
 const THEMES_CATALOG: Dictionary = {
 	"classic": {
 		"name": "Clásico Wordle",
@@ -40,7 +40,7 @@ const THEMES_CATALOG: Dictionary = {
 		"bg_color": "#0f172a",
 		"tile_empty": "#1e293b",
 		"tile_correct": "#2563eb",
-		"tile_wrong_pos": "#38bdf8"
+		"tile_wrong_pos": "#b59f3b"
 	},
 	"emerald_forest": {
 		"name": "Bosque Esmeralda",
@@ -49,7 +49,7 @@ const THEMES_CATALOG: Dictionary = {
 		"bg_color": "#064e3b",
 		"tile_empty": "#065f46",
 		"tile_correct": "#10b981",
-		"tile_wrong_pos": "#34d399"
+		"tile_wrong_pos": "#b59f3b"
 	}
 }
 
@@ -72,7 +72,6 @@ func add_reward_for_win(attempts_used: int) -> void:
 	var coins_earned = 0
 	var stars_earned = 0
 
-	# Monedas según el intento
 	match attempts_used:
 		1: coins_earned = 100
 		2: coins_earned = 80
@@ -81,7 +80,6 @@ func add_reward_for_win(attempts_used: int) -> void:
 		5: coins_earned = 20
 		6: coins_earned = 10
 
-	# Estrellas: 2 estrellas si acierta en intentos 1 o 2; 1 estrella en el resto
 	if attempts_used <= 2:
 		stars_earned = 2
 	else:

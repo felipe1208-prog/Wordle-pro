@@ -1,10 +1,7 @@
 extends Control
 class_name LetterBox
 
-# Paleta oficial Wordle (Modo Oscuro)
-const COLOR_EMPTY: Color = Color("3a3a3c")       # Gris oficial de casilla vacía/borde
-const COLOR_CORRECT: Color = Color("538d4e")     # Verde oficial de acierto
-const COLOR_WRONG_POS: Color = Color("b59f3b")   # Amarillo ocre oficial
+# Paleta oficial Wordle (Modo Oscuro base)
 const COLOR_INCORRECT: Color = Color("272729")   # Gris oscuro descartado
 const COLOR_TEXT: Color = Color("ffffff")
 
@@ -49,22 +46,25 @@ func animate_flip(status: String, delay: float = 0.0) -> Tween:
 
 	# Primera mitad: comprimir altura hasta ocultarse
 	tween.tween_property(self, "scale:y", 0.0, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	# Cambio de color en el punto ciego
+	# Cambio de color en el punto ciego consultando el tema actual
 	tween.tween_callback(func(): set_result(status))
 	# Segunda mitad: expandir de regreso a la altura normal
 	tween.tween_property(self, "scale:y", 1.0, 0.15).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	return tween
 
 func set_result(status: String) -> void:
+	# Obtener colores dinámicos del tema activo en PlayerData
+	var theme_data = PlayerData.THEMES_CATALOG.get(PlayerData.current_theme, PlayerData.THEMES_CATALOG["classic"])
+	
 	match status:
 		"correct":
-			_apply_background_color(COLOR_CORRECT)
+			_apply_background_color(Color(theme_data["tile_correct"]))
 		"wrong_position":
-			_apply_background_color(COLOR_WRONG_POS)
+			_apply_background_color(Color(theme_data["tile_wrong_pos"]))
 		"incorrect":
 			_apply_background_color(COLOR_INCORRECT)
 		_:
-			_apply_background_color(COLOR_EMPTY)
+			_apply_background_color(Color(theme_data["tile_empty"]))
 
 func set_state(status: String) -> void:
 	set_result(status)
@@ -76,7 +76,9 @@ func reset() -> void:
 	scale = Vector2(1.0, 1.0)
 	if label:
 		label.text = ""
-	_apply_background_color(COLOR_EMPTY)
+	# Aplicar color vacío según el tema activo
+	var theme_data = PlayerData.THEMES_CATALOG.get(PlayerData.current_theme, PlayerData.THEMES_CATALOG["classic"])
+	_apply_background_color(Color(theme_data["tile_empty"]))
 
 func clear() -> void:
 	reset()

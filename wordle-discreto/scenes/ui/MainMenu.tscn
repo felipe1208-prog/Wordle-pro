@@ -34,6 +34,11 @@ text = "JUGAR"
 layout_mode = 2
 text = "ESTADISTICAS"
 
+[node name="ShopButton" type="Button" parent="ColorRect/MenuContainer" unique_id=1406275373]
+layout_mode = 2
+text = "TIENDA
+"
+
 [node name="ExitButton" type="Button" parent="ColorRect/MenuContainer" unique_id=1457213460]
 layout_mode = 2
 text = "SALIR"

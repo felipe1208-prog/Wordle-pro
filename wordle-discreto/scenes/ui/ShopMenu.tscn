@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://dsuqmul1dr0ow"]
+
+[ext_resource type="Script" uid="uid://qwg4jjicnj36" path="res://scenes/ui/ShopMenu.gd" id="1_ra75s"]
+
+[node name="ShopMenu" type="Control" unique_id=1729095768]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ra75s")
+
+[node name="ColorRect" type="ColorRect" parent="." unique_id=936791847]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.07058824, 0.07058824, 0.07450981, 1)
+
+[node name="TitleLabel" type="Label" parent="." unique_id=1494976107]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -182.0
+offset_top = 120.0
+offset_right = 182.0
+offset_bottom = 178.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 42
+text = "TIENDA DE TEMAS"
+horizontal_alignment = 1
+
+[node name="CoinsLabel" type="Label" parent="." unique_id=323983247]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 200.0
+offset_right = 339.0
+offset_bottom = 235.0
+theme_override_font_sizes/font_size = 25
+text = "🪙 Monedas: 0"
+
+[node name="ItemsContainer" type="VBoxContainer" parent="." unique_id=787960576]
+layout_mode = 0
+offset_left = 60.0
+offset_top = 270.0
+offset_right = 660.0
+offset_bottom = 870.0
+theme_override_constants/separation = 20
+
+[node name="BackButton" type="Button" parent="." unique_id=905577155]
+layout_mode = 0
+offset_left = 160.0
+offset_top = 950.0
+offset_right = 560.0
+offset_bottom = 1010.0
+text = "VOLVER AL MENU"
